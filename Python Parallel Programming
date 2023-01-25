@@ -1,0 +1,65 @@
+Server Side:
+
+import random
+import socket
+import threading
+
+# List of quotes
+quotes = [
+    "Not how long, but how well you have lived is the main thing. - Seneca",
+    "In order to write about life first you must live it. - Ernest Hemingway",
+    "The unexamined life is not worth living. - Socrates",
+    "Live for each second without hesitation. - Elton John",
+    "My mama always said, life is like a box of chocolates. You never know what you're gonn>
+]
+
+def handle_client(client_socket):
+    """Handles a single client's request for a quote"""
+    # Send a random quote to the client
+    client_socket.send(random.choice(quotes).encode())
+    client_socket.close()
+
+def main():
+    # Create a TCP socket
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Bind the socket to the port
+    server_socket.bind(('192.168.237.130', 8888))
+
+    # Listen for incoming connections
+    server_socket.listen()
+
+    while True:
+        # Accept a new client connection
+        client_socket, client_address = server_socket.accept()
+
+        # Handle the client in a new thread
+        client_thread = threading.Thread(target=handle_client, args=(client_socket,))
+        client_thread.start()
+
+if __name__ == '__main__':
+    main()
+
+
+
+Client side:
+
+import socket
+
+def main():
+    # Create a TCP socket
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Connect to the server
+    client_socket.connect(('192.168.237.130', 8888))
+
+    # Receive the quote from the server
+    quote = client_socket.recv(1024).decode()
+    print("Received quote:", quote)
+
+    # Close the socket
+    client_socket.close()
+
+if __name__ == '__main__':
+    main()
+
